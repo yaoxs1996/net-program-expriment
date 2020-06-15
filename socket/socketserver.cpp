@@ -18,8 +18,9 @@ int main()
         {
             TCPClient *client = new TCPClient(server.accept());
             memset(buf, 0, sizeof(buf));
-            cout << buf;
+            //cout << buf;
             client->write(buf);
+            cout << buf;
         }
     }
     catch(const SocketException &e)

@@ -17,6 +17,7 @@ int main()
             read(client.getfd(), buf, sizeof(buf));
             cout << buf;
             memset(buf, 0, sizeof(buf));
+            //cout << buf;
         }
     }
     catch(const SocketException &e)

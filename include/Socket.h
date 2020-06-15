@@ -22,8 +22,6 @@ protected:
     bool accept(TCPSocket &clientSocket) const;
     bool connect(unsigned short int port, const char *ip) const;
 
-    /**注意: TCPSocket基类并没有send/receive方法**/
-
     bool reuseaddr() const;
     bool isValid() const
     {
@@ -35,7 +33,7 @@ public:
     {
         return m_sockfd;
     }
-    //flag: true=SetNonBlock, false=SetBlock
+    // flag设置非阻塞：true=SetNonBlock, false=SetBlock
     bool setNonBlocking(bool flag) const;
 
 protected:
@@ -73,4 +71,4 @@ public:
     void accept(TCPClient &client) const throw(SocketException);
     TCPClient accept() const throw(SocketException);
 };
-#endif // SOCKET_H_INCLUDED
+#endif

@@ -6,17 +6,19 @@ const int STOPPED = 1;
 
 ThreadPool::ThreadPool() : m_pool_size(DEFAULT_POOL_SIZE)
 {
-    cout << "Constructed ThreadPool of size " << m_pool_size << endl;
+    //cout << "Constructed ThreadPool of size " << m_pool_size << endl;
+    cout << "创建线程池大小为：" << m_pool_size << endl;
 }
 
 ThreadPool::ThreadPool(int pool_size) : m_pool_size(pool_size)
 {
-    cout << "Constructed ThreadPool of size " << m_pool_size << endl;
+    //cout << "Constructed ThreadPool of size " << m_pool_size << endl;
+    cout << "创建线程池大小为：" << m_pool_size << endl;
 }
 
 ThreadPool::~ThreadPool()
 {
-    // Release resources
+    // 释放资源
     if (m_pool_state != STOPPED) {
         destroy_threadpool();
     }
@@ -47,7 +49,8 @@ int ThreadPool::initialize_threadpool()
         }
         m_threads.push_back(tid);
     }
-    cout << m_pool_size << " threads created by the thread pool" << endl;
+    //cout << m_pool_size << " threads created by the thread pool" << endl;
+    //cout << "线程池创建了 " << m_pool_size << " 个线程" << endl;
 
     return 0;
 }
@@ -61,7 +64,8 @@ int ThreadPool::destroy_threadpool()
     m_task_mutex.lock();
     m_pool_state = STOPPED;
     m_task_mutex.unlock();
-    cout << "Broadcasting STOP signal to all threads..." << endl;
+    //cout << "Broadcasting STOP signal to all threads..." << endl;
+    cout << "向所有线程广播停止信号......" << endl;
     m_task_cond_var.broadcast(); // notify all threads we are shttung down
 
     int ret = -1;
@@ -71,17 +75,20 @@ int ThreadPool::destroy_threadpool()
         cout << "pthread_join() returned " << ret << ": " << strerror(errno) << endl;
         m_task_cond_var.broadcast(); // try waking up a bunch of threads that are still waiting
     }
-    cout << m_pool_size << " threads exited from the thread pool" << endl;
+    //cout << m_pool_size << " threads exited from the thread pool" << endl;
+    cout << m_pool_size << " 个线程从线程池中退出" << endl;
     return 0;
 }
 
 void* ThreadPool::execute_thread()
 {
     Task* task = NULL;
-    cout << "Starting thread " << pthread_self() << endl;
+    //cout << "Starting thread " << pthread_self() << endl;
+    cout << "开始线程 " << pthread_self() << endl;
     while(true) {
         // Try to pick a task
-        cout << "Locking: " << pthread_self() << endl;
+        //cout << "Locking: " << pthread_self() << endl;
+        cout << "锁定线程 " << pthread_self() << endl;
         m_task_mutex.lock();
         
         // We need to put pthread_cond_wait in a loop for two reasons:
@@ -93,21 +100,25 @@ void* ThreadPool::execute_thread()
         while ((m_pool_state != STOPPED) && (m_tasks.empty())) {
             // Wait until there is a task in the queue
             // Unlock mutex while wait, then lock it back when signaled
-            cout << "Unlocking and waiting: " << pthread_self() << endl;
+            //cout << "Unlocking and waiting: " << pthread_self() << endl;
+            cout << "解锁并等待 " << pthread_self() << endl;
             m_task_cond_var.wait(m_task_mutex.get_mutex_ptr());
-            cout << "Signaled and locking: " << pthread_self() << endl;
+            //cout << "Signaled and locking: " << pthread_self() << endl;
+            cout << "通知并锁定 " << pthread_self() << endl;
         }
 
         // If the thread was woken up to notify process shutdown, return from here
         if (m_pool_state == STOPPED) {
-            cout << "Unlocking and exiting: " << pthread_self() << endl;
+            //cout << "Unlocking and exiting: " << pthread_self() << endl;
+            cout << "解锁并退出 " << pthread_self() << endl;
             m_task_mutex.unlock();
             pthread_exit(NULL);
         }
 
         task = m_tasks.front();
         m_tasks.pop_front();
-        cout << "Unlocking: " << pthread_self() << endl;
+        //cout << "Unlocking: " << pthread_self() << endl;
+        cout << "解锁 " << pthread_self() << endl;
         m_task_mutex.unlock();
 
         //cout << "Executing thread " << pthread_self() << endl;
